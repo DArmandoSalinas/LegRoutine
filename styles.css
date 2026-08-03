@@ -530,10 +530,12 @@ select {
 
 .sketch img {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
   object-position: center;
   display: block;
+  background: #050505;
 }
 
 .sketch__caption {
@@ -557,7 +559,7 @@ select {
 }
 
 .sketch--compact img {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: auto;
 }
 
 .exercise__badge {
