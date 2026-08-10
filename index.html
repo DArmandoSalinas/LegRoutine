@@ -43,7 +43,10 @@
         <div class="studio__intro">
           <p class="studio__eyebrow">Para Adriana</p>
           <h1 class="studio__title">Genera la rutina y mándala en PDF</h1>
-          <p class="studio__hint">Edita los datos, agrega ejercicios y descarga el PDF listo para enviar (como el de Lalo).</p>
+          <p class="studio__hint">
+            El PDF conserva el mismo formato que la vista previa: bocetos, dosis, pasos, errores y beneficios.
+            Puedes <strong>generar bocetos</strong> al estilo ARMATUS o subir los tuyos.
+          </p>
         </div>
 
         <section class="form-section">
@@ -95,7 +98,10 @@
         <section class="form-section">
           <div class="form-section__head">
             <h2 class="form-section__title">Ejercicios</h2>
-            <button type="button" class="btn btn--primary btn--sm" id="btn-add-ex">+ Agregar</button>
+            <div class="form-section__actions">
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-gen-all">Generar bocetos faltantes</button>
+              <button type="button" class="btn btn--primary btn--sm" id="btn-add-ex">+ Agregar</button>
+            </div>
           </div>
           <div id="exercises-editor" class="exercises-editor"></div>
         </section>
@@ -139,6 +145,7 @@ BENEFICIO: ..."></textarea>
   </div>
 
   <script src="data.js"></script>
+  <script src="images.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

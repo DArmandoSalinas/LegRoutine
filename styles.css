@@ -1312,6 +1312,146 @@ select {
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.form-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.img-tools {
+  margin-top: 6px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 107, 53, 0.25);
+  background: rgba(255, 107, 53, 0.06);
+}
+
+.img-tools__label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary-soft);
+  margin-bottom: 10px;
+}
+
+.img-thumb {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #050505;
+  margin-bottom: 10px;
+}
+
+.img-thumb img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  display: block;
+}
+
+.img-thumb--empty {
+  display: grid;
+  place-items: center;
+  min-height: 96px;
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.img-tools__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-btn {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.file-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Fixed-width offscreen clone used for PDF = same desktop layout */
+.pdf-export-host {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 900px;
+  background: #000;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.pdf-export-sheet {
+  width: 880px !important;
+  max-width: 880px !important;
+  background: #000;
+  color: #fff;
+}
+
+.pdf-export-sheet .hero--sheet {
+  padding: 40px 28px 36px;
+}
+
+.pdf-export-sheet .main--sheet {
+  padding: 24px 28px 40px;
+}
+
+.pdf-export-sheet .sketch {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-export-sheet .sketch img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  aspect-ratio: auto !important;
+}
+
+.pdf-export-sheet .exercise,
+.pdf-export-sheet .subcard,
+.pdf-export-sheet .block,
+.pdf-export-sheet .split {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pdf-export-sheet .grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.pdf-export-sheet .steps {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.pdf-export-sheet .split {
+  grid-template-columns: 1fr 1fr;
+}
+
+.pdf-export-sheet .exercise__head {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+}
+
+.pdf-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 .form-section__title {

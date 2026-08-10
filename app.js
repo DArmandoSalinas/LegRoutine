@@ -1,21 +1,54 @@
 (() => {
-  const STORAGE_KEY = "armatus-routine-v1";
+  const STORAGE_KEY = "armatus-routine-v2";
 
   let state = loadState();
+  let openIndex = 0;
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 
   function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("armatus-routine-v1");
       if (raw) return JSON.parse(raw);
     } catch (_) {}
     return structuredClone(window.DEFAULT_ROUTINE);
   }
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      console.warn("Storage full — compressing images…", err);
+      compactImages().then(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (_) {
+          alert("El navegador no pudo guardar todas las imágenes (almacenamiento lleno). El PDF igual funcionará en esta sesión.");
+        }
+      });
+    }
+  }
+
+  async function compactImages() {
+    const imgApi = window.ArmatusImages;
+    if (!imgApi) return;
+    for (const ex of state.exercises) {
+      if (ex.image?.startsWith("data:image/png")) {
+        try {
+          const im = await imgApi.loadImage(ex.image, false);
+          ex.image = await imgApi.toJpegDataUrl(im, 960, 0.8);
+        } catch (_) {}
+      }
+      for (const p of ex.parts || []) {
+        if (p.image?.startsWith("data:image/png")) {
+          try {
+            const im = await imgApi.loadImage(p.image, false);
+            p.image = await imgApi.toJpegDataUrl(im, 960, 0.8);
+          } catch (_) {}
+        }
+      }
+    }
   }
 
   function escapeHtml(str) {
@@ -43,7 +76,38 @@
     return String(n).padStart(2, "0");
   }
 
-  /* ---------- Read form meta into state ---------- */
+  function thumbHtml(src) {
+    if (!src) return `<div class="img-thumb img-thumb--empty">Sin boceto</div>`;
+    return `<div class="img-thumb"><img src="${escapeHtml(src)}" alt="Boceto" /></div>`;
+  }
+
+  function imageControls(opts) {
+    const { i, pi, src, label } = opts;
+    const isPart = pi != null;
+    const genAttr = isPart ? `data-gen-part="${i}" data-pi="${pi}"` : `data-gen="${i}"`;
+    const fileAttr = isPart ? `data-file-part="${i}" data-pi="${pi}"` : `data-file="${i}"`;
+    const clearAttr = isPart ? `data-clear-part="${i}" data-pi="${pi}"` : `data-clear-img="${i}"`;
+    const inputAttr = isPart
+      ? `data-pk="image" data-i="${i}" data-pi="${pi}"`
+      : `data-k="image" data-i="${i}"`;
+    return `
+      <div class="img-tools field--full">
+        <span class="img-tools__label">${escapeHtml(label || "Boceto")}</span>
+        ${thumbHtml(src)}
+        <div class="img-tools__actions">
+          <button type="button" class="btn btn--primary btn--sm" ${genAttr}>Generar boceto</button>
+          <label class="btn btn--ghost btn--sm file-btn">Subir
+            <input type="file" accept="image/*" hidden ${fileAttr} />
+          </label>
+          <button type="button" class="btn btn--ghost btn--sm" ${clearAttr}>Quitar</button>
+        </div>
+        <label class="field" style="margin-top:8px">
+          <span>URL / ruta (opcional)</span>
+          <input ${inputAttr} value="${escapeHtml(src || "")}" placeholder="images/... o data URL" />
+        </label>
+      </div>`;
+  }
+
   function readMetaFromForm() {
     state.eyebrow = $("#f-eyebrow").value.trim();
     state.client = $("#f-client").value.trim();
@@ -70,13 +134,12 @@
     $("#f-freq").value = state.metaFrequency || "";
   }
 
-  /* ---------- Exercise editor ---------- */
   function renderEditor() {
     const root = $("#exercises-editor");
     root.innerHTML = state.exercises
       .map((ex, i) => {
         return `
-        <details class="ex-edit" data-i="${i}" ${i === 0 ? "open" : ""}>
+        <details class="ex-edit" data-i="${i}" ${i === openIndex ? "open" : ""}>
           <summary>
             <span class="ex-edit__num">${padNum(i + 1)}</span>
             <span class="ex-edit__name">${escapeHtml(ex.title || "Ejercicio")}</span>
@@ -96,10 +159,10 @@
               <label class="field field--full"><span>Bullets (uno por línea)</span><textarea data-k="bullets" data-i="${i}" rows="3">${escapeHtml(listToLines(ex.bullets))}</textarea></label>
               <label class="field field--full"><span>Agonistas (separados por coma)</span><input data-k="agonists" data-i="${i}" value="${escapeHtml(ex.agonists)}" /></label>
               <label class="field field--full"><span>Sinergistas (separados por coma)</span><input data-k="synergists" data-i="${i}" value="${escapeHtml(ex.synergists)}" /></label>
-              <label class="field field--full"><span>Pasos (uno por línea)</span><textarea data-k="steps" data-i="${i}" rows="4">${escapeHtml(listToLines(ex.steps))}</textarea></label>
+              <label class="field field--full"><span>Pasos (uno por línea · usa — para título)</span><textarea data-k="steps" data-i="${i}" rows="4">${escapeHtml(listToLines(ex.steps))}</textarea></label>
               <label class="field field--full"><span>Errores (uno por línea)</span><textarea data-k="mistakes" data-i="${i}" rows="3">${escapeHtml(listToLines(ex.mistakes))}</textarea></label>
               <label class="field field--full"><span>Beneficio</span><textarea data-k="benefit" data-i="${i}" rows="2">${escapeHtml(ex.benefit)}</textarea></label>
-              <label class="field field--full"><span>Imagen (URL o images/...)</span><input data-k="image" data-i="${i}" value="${escapeHtml(ex.image || "")}" /></label>
+              ${imageControls({ i, src: ex.image, label: "Boceto del ejercicio" })}
             </div>
             <div class="parts-block">
               <div class="parts-block__head">
@@ -117,7 +180,7 @@
                     <label class="field field--full"><span>Texto</span><textarea data-pk="text" data-i="${i}" data-pi="${pi}" rows="2">${escapeHtml(p.text)}</textarea></label>
                     <label class="field field--full"><span>Músculos</span><input data-pk="muscles" data-i="${i}" data-pi="${pi}" value="${escapeHtml(p.muscles)}" /></label>
                     <label class="field field--full"><span>Pasos</span><textarea data-pk="steps" data-i="${i}" data-pi="${pi}" rows="3">${escapeHtml(listToLines(p.steps))}</textarea></label>
-                    <label class="field field--full"><span>Imagen</span><input data-pk="image" data-i="${i}" data-pi="${pi}" value="${escapeHtml(p.image || "")}" /></label>
+                    ${imageControls({ i, pi, src: p.image, label: `Boceto · ${p.code || "parte"}` })}
                   </div>
                   <button type="button" class="linkish" data-del-part="${i}" data-pi="${pi}">Eliminar parte</button>
                 </div>`
@@ -134,21 +197,64 @@
       .join("");
   }
 
+  async function setBusy(btn, busy, label = "Generar boceto") {
+    if (!btn) return;
+    btn.disabled = busy;
+    btn.textContent = busy ? "Generando…" : label;
+  }
+
+  async function generateForExercise(i, btn) {
+    const ex = state.exercises[i];
+    const extra = [ex.titleEm, ex.intro, ex.steps?.[0]].filter(Boolean).join(". ");
+    await setBusy(btn, true);
+    try {
+      const dataUrl = await window.ArmatusImages.generateSketch(ex.title || "exercise", extra);
+      ex.image = dataUrl;
+      openIndex = i;
+      refreshAll();
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo generar el boceto. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
+      await setBusy(btn, false);
+    }
+  }
+
+  async function generateForPart(i, pi, btn) {
+    const p = state.exercises[i].parts[pi];
+    const extra = [p.text, p.steps?.[0]].filter(Boolean).join(". ");
+    await setBusy(btn, true);
+    try {
+      const dataUrl = await window.ArmatusImages.generateSketch(p.title || "exercise part", extra);
+      p.image = dataUrl;
+      openIndex = i;
+      refreshAll();
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo generar el boceto. Revisa tu conexión e inténtalo de nuevo.");
+    } finally {
+      await setBusy(btn, false);
+    }
+  }
+
   function bindEditorEvents() {
     const root = $("#exercises-editor");
+
+    root.addEventListener("toggle", (e) => {
+      const d = e.target.closest("details.ex-edit");
+      if (d?.open) openIndex = Number(d.dataset.i);
+    });
+
     root.addEventListener("input", (e) => {
       const t = e.target;
       if (t.dataset.k != null) {
         const i = Number(t.dataset.i);
         const k = t.dataset.k;
-        if (["bullets", "steps", "mistakes"].includes(k)) {
-          state.exercises[i][k] = linesToList(t.value);
-        } else {
-          state.exercises[i][k] = t.value;
-        }
-        if (k === "title" || k === "shortLabel") {
+        if (["bullets", "steps", "mistakes"].includes(k)) state.exercises[i][k] = linesToList(t.value);
+        else state.exercises[i][k] = t.value;
+        if (k === "title") {
           const summaryName = t.closest("details")?.querySelector(".ex-edit__name");
-          if (summaryName && k === "title") summaryName.textContent = t.value || "Ejercicio";
+          if (summaryName) summaryName.textContent = t.value || "Ejercicio";
         }
         debouncePreview();
         return;
@@ -163,13 +269,42 @@
       }
     });
 
-    root.addEventListener("click", (e) => {
+    root.addEventListener("click", async (e) => {
+      const gen = e.target.closest("[data-gen]");
+      if (gen) {
+        e.preventDefault();
+        await generateForExercise(Number(gen.dataset.gen), gen);
+        return;
+      }
+      const genPart = e.target.closest("[data-gen-part]");
+      if (genPart) {
+        e.preventDefault();
+        await generateForPart(Number(genPart.dataset.genPart), Number(genPart.dataset.pi), genPart);
+        return;
+      }
+      const clear = e.target.closest("[data-clear-img]");
+      if (clear) {
+        e.preventDefault();
+        state.exercises[Number(clear.dataset.clearImg)].image = "";
+        openIndex = Number(clear.dataset.clearImg);
+        refreshAll();
+        return;
+      }
+      const clearPart = e.target.closest("[data-clear-part]");
+      if (clearPart) {
+        e.preventDefault();
+        state.exercises[Number(clearPart.dataset.clearPart)].parts[Number(clearPart.dataset.pi)].image = "";
+        openIndex = Number(clearPart.dataset.clearPart);
+        refreshAll();
+        return;
+      }
       const del = e.target.closest("[data-delete]");
       if (del) {
         e.preventDefault();
         const i = Number(del.dataset.delete);
         if (confirm("¿Eliminar este ejercicio?")) {
           state.exercises.splice(i, 1);
+          openIndex = Math.max(0, i - 1);
           refreshAll();
         }
         return;
@@ -179,6 +314,7 @@
         const i = Number(up.dataset.up);
         if (i > 0) {
           [state.exercises[i - 1], state.exercises[i]] = [state.exercises[i], state.exercises[i - 1]];
+          openIndex = i - 1;
           refreshAll();
         }
         return;
@@ -188,6 +324,7 @@
         const i = Number(down.dataset.down);
         if (i < state.exercises.length - 1) {
           [state.exercises[i + 1], state.exercises[i]] = [state.exercises[i], state.exercises[i + 1]];
+          openIndex = i + 1;
           refreshAll();
         }
         return;
@@ -205,20 +342,47 @@
           steps: [""],
           image: "",
         });
+        openIndex = i;
         refreshAll();
         return;
       }
       const delPart = e.target.closest("[data-del-part]");
       if (delPart) {
         const i = Number(delPart.dataset.delPart);
-        const pi = Number(delPart.dataset.pi);
-        state.exercises[i].parts.splice(pi, 1);
+        state.exercises[i].parts.splice(Number(delPart.dataset.pi), 1);
+        openIndex = i;
         refreshAll();
+      }
+    });
+
+    root.addEventListener("change", async (e) => {
+      const fileEx = e.target.closest("input[data-file]");
+      if (fileEx?.files?.[0]) {
+        const i = Number(fileEx.dataset.file);
+        try {
+          state.exercises[i].image = await window.ArmatusImages.fileToDataUrl(fileEx.files[0]);
+          openIndex = i;
+          refreshAll();
+        } catch (_) {
+          alert("No se pudo leer la imagen.");
+        }
+        return;
+      }
+      const filePart = e.target.closest("input[data-file-part]");
+      if (filePart?.files?.[0]) {
+        const i = Number(filePart.dataset.filePart);
+        const pi = Number(filePart.dataset.pi);
+        try {
+          state.exercises[i].parts[pi].image = await window.ArmatusImages.fileToDataUrl(filePart.files[0]);
+          openIndex = i;
+          refreshAll();
+        } catch (_) {
+          alert("No se pudo leer la imagen.");
+        }
       }
     });
   }
 
-  /* ---------- Preview render ---------- */
   function tagsHtml(str, muted = false) {
     return String(str || "")
       .split(",")
@@ -231,7 +395,7 @@
   function renderExercise(ex, index) {
     const n = padNum(index + 1);
     const sketch = ex.image
-      ? `<figure class="sketch"><img src="${escapeHtml(ex.image)}" alt="Boceto: ${escapeHtml(ex.title)}" loading="lazy" /><figcaption class="sketch__caption">Boceto</figcaption></figure>`
+      ? `<figure class="sketch"><img src="${escapeHtml(ex.image)}" alt="Boceto: ${escapeHtml(ex.title)}" loading="eager" crossorigin="anonymous" /><figcaption class="sketch__caption">Boceto · Técnica</figcaption></figure>`
       : "";
 
     const purposeBlock =
@@ -241,9 +405,7 @@
             ${ex.purpose ? `<p>${escapeHtml(ex.purpose)}</p>` : ""}
             ${
               ex.bullets?.length
-                ? `<ul class="check-list">${ex.bullets
-                    .map((b) => `<li><span>${escapeHtml(b)}</span></li>`)
-                    .join("")}</ul>`
+                ? `<ul class="check-list">${ex.bullets.map((b) => `<li><span>${escapeHtml(b)}</span></li>`).join("")}</ul>`
                 : ""
             }
           </div>`
@@ -282,15 +444,16 @@
           <div class="subcard__title"><span class="subcard__code">${escapeHtml(p.code)}</span>${escapeHtml(p.title)}</div>
           ${p.pill ? `<span class="pill">${escapeHtml(p.pill)}</span>` : ""}
         </div>
-        ${p.image ? `<figure class="sketch sketch--compact"><img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy" /><figcaption class="sketch__caption">Boceto</figcaption></figure>` : ""}
+        ${
+          p.image
+            ? `<figure class="sketch sketch--compact"><img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="eager" crossorigin="anonymous" /><figcaption class="sketch__caption">Boceto · Técnica</figcaption></figure>`
+            : ""
+        }
         ${p.text ? `<p style="color:var(--text-secondary);font-size:0.9rem">${escapeHtml(p.text)}</p>` : ""}
         ${p.muscles ? `<p class="muscles"><strong>Músculos clave:</strong> ${escapeHtml(p.muscles)}</p>` : ""}
         ${
           p.steps?.filter(Boolean).length
-            ? `<ol>${p.steps
-                .filter(Boolean)
-                .map((s) => `<li>${escapeHtml(s)}</li>`)
-                .join("")}</ol>`
+            ? `<ol>${p.steps.filter(Boolean).map((s) => `<li>${escapeHtml(s)}</li>`).join("")}</ol>`
             : ""
         }
       </div>`
@@ -313,7 +476,7 @@
         : "";
 
     return `
-      <article id="${escapeHtml(ex.id)}" class="panel exercise" data-exercise="${escapeHtml(ex.id)}">
+      <article id="${escapeHtml(ex.id)}" class="panel exercise pdf-break" data-exercise="${escapeHtml(ex.id)}">
         <div class="exercise__head">
           <div>
             <div class="exercise__badge">${escapeHtml(ex.badge || `${n} · Bloque`)}</div>
@@ -382,14 +545,14 @@
 
         <main class="main main--sheet">
           ${state.exercises.map((ex, i) => renderExercise(ex, i)).join("")}
-          <section class="panel tracker" style="padding:20px">
+          <section class="panel tracker pdf-break" style="padding:20px">
             <div class="tracker__head">
               <div>
                 <h3>Registro de sesión</h3>
                 <p>Marca cada bloque cuando lo completes.</p>
               </div>
             </div>
-            <div class="tracker__grid" id="tracker-grid">
+            <div class="tracker__grid">
               ${state.exercises
                 .map(
                   (ex, i) => `
@@ -426,7 +589,6 @@
     sections.forEach((s) => observer.observe(s));
   }
 
-  /* ---------- Prompt parser ---------- */
   function parsePrompt(text) {
     const chunks = text.split(/\n---+\n/);
     const header = chunks[0] || "";
@@ -506,44 +668,118 @@
     return next;
   }
 
-  /* ---------- PDF ---------- */
-  async function downloadPdf() {
-    const sheet = $("#routine-sheet");
-    if (!sheet) return;
+  function waitForImages(root) {
+    const imgs = [...root.querySelectorAll("img")];
+    return Promise.all(
+      imgs.map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete && img.naturalWidth) return resolve();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            setTimeout(resolve, 8000);
+          })
+      )
+    );
+  }
 
+  async function embedAllImagesInState() {
+    const api = window.ArmatusImages;
+    for (const ex of state.exercises) {
+      if (ex.image && !ex.image.startsWith("data:")) {
+        ex.image = await api.ensureEmbeddable(ex.image);
+      }
+      for (const p of ex.parts || []) {
+        if (p.image && !p.image.startsWith("data:")) {
+          p.image = await api.ensureEmbeddable(p.image);
+        }
+      }
+    }
+  }
+
+  async function downloadPdf() {
     const btn = $("#btn-pdf");
     const btn2 = $("#btn-pdf-2");
     const label = btn?.textContent;
-    if (btn) btn.textContent = "Generando…";
-    if (btn2) btn2.textContent = "Generando…";
+    if (btn) btn.textContent = "Preparando…";
+    if (btn2) btn2.textContent = "Preparando…";
 
     const filename = `ARMATUS_${(state.client || state.titleAccent || "rutina")
       .replace(/\s+/g, "_")
       .slice(0, 40)}.pdf`;
 
     try {
-      if (window.html2pdf) {
-        const opt = {
-          margin: [8, 8, 8, 8],
-          filename,
-          image: { type: "jpeg", quality: 0.92 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#000000",
-            logging: false,
-            windowWidth: 900,
-          },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-          pagebreak: { mode: ["css", "legacy"] },
-        };
-        await window.html2pdf().set(opt).from(sheet).save();
-      } else {
+      // Embed local/path images as data URLs so html2canvas never drops them
+      if (btn) btn.textContent = "Incrustando imágenes…";
+      if (btn2) btn2.textContent = "Incrustando imágenes…";
+      await embedAllImagesInState();
+      renderPreview();
+      saveState();
+
+      const sheet = $("#routine-sheet");
+      if (!sheet) throw new Error("No hay vista previa");
+
+      // Off-screen export clone at fixed desktop width = same format as web layout
+      const host = document.createElement("div");
+      host.id = "pdf-export-host";
+      host.className = "pdf-export-host";
+      const clone = sheet.cloneNode(true);
+      clone.id = "pdf-export-sheet";
+      clone.classList.add("pdf-export-sheet");
+      // Remove interactive-only bits
+      clone.querySelectorAll(".no-print").forEach((el) => el.remove());
+      host.appendChild(clone);
+      document.body.appendChild(host);
+
+      if (btn) btn.textContent = "Cargando bocetos…";
+      if (btn2) btn2.textContent = "Cargando bocetos…";
+      await waitForImages(clone);
+      await new Promise((r) => setTimeout(r, 300));
+
+      if (btn) btn.textContent = "Generando PDF…";
+      if (btn2) btn2.textContent = "Generando PDF…";
+
+      if (!window.html2pdf) {
         window.print();
+        return;
       }
+
+      const opt = {
+        margin: [10, 10, 12, 10],
+        filename,
+        image: { type: "jpeg", quality: 0.95 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: "#000000",
+          logging: false,
+          imageTimeout: 15000,
+          windowWidth: 900,
+          onclone: (doc) => {
+            const el = doc.getElementById("pdf-export-sheet");
+            if (el) {
+              el.style.width = "880px";
+              el.style.maxWidth = "880px";
+              el.querySelectorAll("img").forEach((img) => {
+                img.style.objectFit = "contain";
+                img.style.width = "100%";
+                img.style.height = "auto";
+                img.style.maxHeight = "none";
+              });
+            }
+          },
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["css", "legacy"], avoid: [".pdf-break", ".sketch", ".subcard", ".block"] },
+      };
+
+      await window.html2pdf().set(opt).from(clone).save();
+      host.remove();
     } catch (err) {
       console.error(err);
-      alert("No se pudo generar el PDF automáticamente. Se abrirá la impresión del navegador.");
+      document.getElementById("pdf-export-host")?.remove();
+      alert("Hubo un problema generando el PDF. Se abrirá la impresión del navegador (elige 'Guardar como PDF').");
       window.print();
     } finally {
       if (btn) btn.textContent = label || "Descargar PDF";
@@ -551,7 +787,6 @@
     }
   }
 
-  /* ---------- Sync ---------- */
   let previewTimer = null;
   function debouncePreview() {
     readMetaFromForm();
@@ -567,7 +802,6 @@
     saveState();
   }
 
-  /* ---------- Init ---------- */
   function init() {
     fillMetaForm();
     renderEditor();
@@ -583,17 +817,15 @@
       ex.badge = `${padNum(state.exercises.length + 1)} · Bloque`;
       state.exercises.push(ex);
       state.metaBlocks = String(state.exercises.length);
+      openIndex = state.exercises.length - 1;
       refreshAll();
-      const last = $$(".ex-edit").at(-1);
-      if (last) {
-        last.open = true;
-        last.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
+      $$(".ex-edit").at(-1)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
 
     $("#btn-load-template")?.addEventListener("click", () => {
       if (confirm("¿Cargar la plantilla de piernas (Lalo) y reemplazar lo actual?")) {
         state = structuredClone(window.DEFAULT_ROUTINE);
+        openIndex = 0;
         refreshAll();
       }
     });
@@ -613,6 +845,7 @@
           metaFrequency: "2×",
           exercises: [],
         };
+        openIndex = 0;
         refreshAll();
       }
     });
@@ -621,8 +854,41 @@
       const parsed = parsePrompt($("#f-prompt").value);
       if (!parsed) return;
       state = parsed;
+      openIndex = 0;
       refreshAll();
       alert(`Listo: ${state.exercises.length} ejercicio(s) cargados.`);
+    });
+
+    $("#btn-gen-all")?.addEventListener("click", async () => {
+      const btn = $("#btn-gen-all");
+      if (!confirm("¿Generar bocetos para todos los ejercicios que no tienen imagen? Puede tardar unos minutos.")) return;
+      btn.disabled = true;
+      btn.textContent = "Generando…";
+      try {
+        for (let i = 0; i < state.exercises.length; i++) {
+          const ex = state.exercises[i];
+          btn.textContent = `Boceto ${i + 1}/${state.exercises.length}…`;
+          if (!ex.image) {
+            const extra = [ex.titleEm, ex.intro].filter(Boolean).join(". ");
+            ex.image = await window.ArmatusImages.generateSketch(ex.title || "exercise", extra);
+          }
+          for (let pi = 0; pi < (ex.parts || []).length; pi++) {
+            const p = ex.parts[pi];
+            if (!p.image) {
+              p.image = await window.ArmatusImages.generateSketch(p.title || "part", p.text || "");
+            }
+          }
+          openIndex = i;
+          refreshAll();
+        }
+        alert("Bocetos listos.");
+      } catch (err) {
+        console.error(err);
+        alert("Se interrumpió la generación. Puedes reintentar ejercicio por ejercicio.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generar bocetos faltantes";
+      }
     });
 
     $("#btn-pdf")?.addEventListener("click", downloadPdf);
