@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ARMATUS · Generador de Rutinas</title>
-  <meta name="description" content="Crea rutinas con la estructura ARMATUS y descárgalas en PDF para compartir." />
+  <title>ARMATUS · Rutina de Piernas para Corredores</title>
+  <meta name="description" content="Protocolo biomecánico de fuerza para corredores: sentadilla, single-leg RDL, búlgara + step-up, Copenhagen y complejo de tobillo." />
   <meta name="theme-color" content="#000000" />
   <link rel="icon" href="favicon.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
 </head>
 <body>
   <div class="ambient" aria-hidden="true">
@@ -27,125 +26,586 @@
         <img class="brand__mark" src="favicon.png" alt="ARMATUS" width="36" height="36" />
         <div class="brand__text">
           <div class="brand__name">Armatus</div>
-          <div class="brand__sub">Studio · Rutinas</div>
+          <div class="brand__sub">Fuerza · Corredores</div>
         </div>
       </div>
-      <div class="topbar__controls studio-actions">
-        <button type="button" class="btn btn--ghost btn--sm" id="btn-load-template">Plantilla piernas</button>
-        <button type="button" class="btn btn--ghost btn--sm" id="btn-new">Nueva</button>
-        <button type="button" class="btn btn--primary btn--sm" id="btn-pdf">Descargar PDF</button>
+      <div class="topbar__controls">
+        <label class="level-label" for="runner-level">Nivel</label>
+        <select id="runner-level" class="level-select" aria-label="Nivel del corredor">
+          <option value="beginner">Principiante</option>
+          <option value="intermediate" selected>Intermedio</option>
+          <option value="advanced">Avanzado</option>
+        </select>
       </div>
     </header>
 
-    <div class="studio">
-      <!-- BUILDER -->
-      <aside class="studio__builder panel" id="builder">
-        <div class="studio__intro">
-          <p class="studio__eyebrow">Para Adriana</p>
-          <h1 class="studio__title">Genera la rutina y mándala en PDF</h1>
-          <p class="studio__hint">
-            El PDF conserva el mismo formato que la vista previa: bocetos, dosis, pasos, errores y beneficios.
-            Puedes <strong>generar bocetos</strong> al estilo ARMATUS o subir los tuyos.
-          </p>
+    <section class="hero">
+      <div class="hero__grid">
+        <div class="hero__eyebrow">Protocolo biomecánico</div>
+        <h1 class="hero__title">Rutina de <span>piernas</span> para corredores</h1>
+        <p class="hero__featuring">
+          <span class="hero__featuring-label">ft.</span>
+          <span class="hero__featuring-name">Silvia Adriana Gonzalez</span>
+        </p>
+        <p class="hero__lead">
+          Cinco bloques de fuerza diseñados para mejorar economía de carrera, estabilidad unipodal
+          y resiliencia ante impacto — sin hipertrofia innecesaria.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="#squat">Empezar rutina</a>
+          <a class="btn btn--ghost" href="#tools">Cronómetro y registro</a>
+        </div>
+        <div class="hero__meta">
+          <div class="meta-chip"><strong>5</strong><span>Bloques</span></div>
+          <div class="meta-chip"><strong>~45</strong><span>Minutos</span></div>
+          <div class="meta-chip"><strong>2×</strong><span>Por semana</span></div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="ex-nav-wrap" aria-label="Ejercicios">
+      <div class="ex-nav">
+        <a class="ex-nav__btn is-active" href="#squat" data-nav="squat">
+          <span class="ex-nav__num">01</span>
+          <span class="ex-nav__label">Sentadilla</span>
+          <span class="ex-nav__tag">Fuerza</span>
+        </a>
+        <a class="ex-nav__btn" href="#rdl" data-nav="rdl">
+          <span class="ex-nav__num">02</span>
+          <span class="ex-nav__label">Single-Leg RDL</span>
+          <span class="ex-nav__tag">Unipodal</span>
+        </a>
+        <a class="ex-nav__btn" href="#combo" data-nav="combo">
+          <span class="ex-nav__num">03</span>
+          <span class="ex-nav__label">Búlgara + Step-Up</span>
+          <span class="ex-nav__tag">Potencia</span>
+        </a>
+        <a class="ex-nav__btn" href="#copenhagen" data-nav="copenhagen">
+          <span class="ex-nav__num">04</span>
+          <span class="ex-nav__label">Copenhagen</span>
+          <span class="ex-nav__tag">Core</span>
+        </a>
+        <a class="ex-nav__btn" href="#ankle" data-nav="ankle">
+          <span class="ex-nav__num">05</span>
+          <span class="ex-nav__label">Tobillo</span>
+          <span class="ex-nav__tag">Impacto</span>
+        </a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <!-- 01 SQUAT -->
+      <article id="squat" class="panel exercise" data-exercise="squat">
+        <div class="exercise__head">
+          <div>
+            <div class="exercise__badge">01 · Base de fuerza máxima</div>
+            <h2 class="exercise__title">Sentadilla libre <em>(Back Squat)</em></h2>
+            <p class="exercise__intro">
+              El estándar para reclutar unidades motoras, aumentar la rigidez tendinosa y mejorar
+              la capacidad de absorber impacto en cada zancada. Aquí no buscamos volumen muscular:
+              buscamos fuerza reactiva transferible a la carrera.
+            </p>
+          </div>
+          <div class="dose" data-dose="squat">
+            <span class="dose__label">Dosificación recomendada</span>
+            <span class="dose__value">3–4 × 5–6</span>
+            <span class="dose__meta">RPE 7–8 · Descanso 2–3 min</span>
+          </div>
         </div>
 
-        <section class="form-section">
-          <h2 class="form-section__title">Datos de la rutina</h2>
-          <div class="form-grid">
-            <label class="field">
-              <span>Eyebrow</span>
-              <input id="f-eyebrow" type="text" />
-            </label>
-            <label class="field">
-              <span>Cliente / para quién</span>
-              <input id="f-client" type="text" placeholder="Ej. Lalo" />
-            </label>
-            <label class="field">
-              <span>Título (antes del acento)</span>
-              <input id="f-title" type="text" />
-            </label>
-            <label class="field">
-              <span>Palabra en naranja</span>
-              <input id="f-accent" type="text" />
-            </label>
-            <label class="field field--full">
-              <span>Título (después)</span>
-              <input id="f-suffix" type="text" />
-            </label>
-            <label class="field field--full">
-              <span>ft. (coach)</span>
-              <input id="f-featuring" type="text" />
-            </label>
-            <label class="field field--full">
-              <span>Descripción</span>
-              <textarea id="f-lead" rows="3"></textarea>
-            </label>
-            <label class="field">
-              <span>Bloques</span>
-              <input id="f-blocks" type="text" />
-            </label>
-            <label class="field">
-              <span>Minutos</span>
-              <input id="f-minutes" type="text" />
-            </label>
-            <label class="field">
-              <span>Frecuencia</span>
-              <input id="f-freq" type="text" />
-            </label>
-          </div>
-        </section>
+        <figure class="sketch">
+          <img src="images/squat.png" alt="Boceto: sentadilla libre con barra" width="1280" height="720" loading="lazy" />
+          <figcaption class="sketch__caption">Boceto · Posición profunda</figcaption>
+        </figure>
 
-        <section class="form-section">
-          <div class="form-section__head">
-            <h2 class="form-section__title">Ejercicios</h2>
-            <div class="form-section__actions">
-              <button type="button" class="btn btn--ghost btn--sm" id="btn-gen-all">Generar bocetos faltantes</button>
-              <button type="button" class="btn btn--primary btn--sm" id="btn-add-ex">+ Agregar</button>
+        <div class="grid-2">
+          <div class="block">
+            <h3 class="block__title"><span class="block__icon">⚡</span> Propósito y enfoque</h3>
+            <p>
+              Desarrolla <strong>fuerza reactiva y potencia de extensión triple</strong>
+              (cadera, rodilla y tobillo). Al elevar la <em>tendon stiffness</em>, el Aquiles y el
+              cuádriceps almacenan y liberan energía elástica con más eficiencia en el contacto pie–suelo.
+            </p>
+            <ul class="check-list">
+              <li><span><strong>RFD (Rate of Force Development):</strong> enseña al sistema nervioso a reclutar fibras rápido, clave en sprints y cambios de ritmo.</span></li>
+              <li><span><strong>Resistencia a la deformación:</strong> reduce el colapso excesivo de rodilla en la amortiguación, protegiendo el complejo patelofemoral.</span></li>
+              <li><span><strong>Economía de carrera:</strong> menos tiempo de contacto y menor coste de O₂ a ritmos submáximos.</span></li>
+            </ul>
+          </div>
+          <div class="block">
+            <h3 class="block__title"><span class="block__icon">◎</span> Enfoque muscular</h3>
+            <span class="section-label">Agonistas principales</span>
+            <div class="tag-row">
+              <span class="tag">Cuádriceps (recto femoral, vastos)</span>
+              <span class="tag">Glúteo mayor</span>
+            </div>
+            <span class="section-label" style="margin-top:14px">Sinergistas y estabilizadores</span>
+            <div class="tag-row">
+              <span class="tag tag--muted">Erectores espinales</span>
+              <span class="tag tag--muted">Aductor mayor</span>
+              <span class="tag tag--muted">Isquiotibiales</span>
+              <span class="tag tag--muted">Sóleo y gastrocnemio</span>
             </div>
           </div>
-          <div id="exercises-editor" class="exercises-editor"></div>
-        </section>
-
-        <section class="form-section">
-          <h2 class="form-section__title">Pegar rutina rápida (opcional)</h2>
-          <p class="field-help">Formato simple: una línea por campo. Usa --- entre ejercicios.</p>
-          <textarea id="f-prompt" class="prompt-box" rows="8" placeholder="TÍTULO: Rutina de piernas
-ACENTO: piernas
-FT: Silvia Adriana Gonzalez
-CLIENTE: Lalo
-DESCRIPCIÓN: Texto corto...
-META: 5 | ~45 | 2×
-
----
-NOMBRE: Sentadilla libre
-EM: (Back Squat)
-TAG: Fuerza
-DOSIS: 3–4 × 5–6 | RPE 7–8 · Descanso 2–3 min
-INTRO: ...
-PROPÓSITO: ...
-PASOS:
-1. Setup — ...
-2. Brace — ...
-ERRORES:
-- Error 1
-BENEFICIO: ..."></textarea>
-          <button type="button" class="btn btn--ghost" id="btn-parse-prompt" style="margin-top:10px;width:100%">Aplicar texto a la rutina</button>
-        </section>
-      </aside>
-
-      <!-- PREVIEW -->
-      <div class="studio__preview-wrap">
-        <div class="preview-bar">
-          <span>Vista previa</span>
-          <button type="button" class="btn btn--primary btn--sm" id="btn-pdf-2">Descargar PDF</button>
         </div>
-        <div id="preview-root" class="preview-root"></div>
-      </div>
-    </div>
+
+        <div class="block" style="margin-top:14px">
+          <h3 class="block__title"><span class="block__icon">→</span> Cómo ejecutarlo</h3>
+          <div class="steps">
+            <div class="step">
+              <span class="step__n">01 · Setup</span>
+              <p>Barra sobre trapecios. Pies al ancho de hombros o ligeramente más abiertos, rotación externa 15–30°. Activa el trípode plantar (talón, base del 1er y 5º metatarsiano).</p>
+            </div>
+            <div class="step">
+              <span class="step__n">02 · Brace</span>
+              <p>Inhala 360° hacia el abdomen y estabiliza la columna con un brace firme antes de iniciar el descenso. El tronco debe sentirse “blindado”, no rígido como una tabla.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">03 · Excéntrica</span>
+              <p>Flexiona cadera y rodilla a la vez. Desciende controlado hasta romper la paralela si tu movilidad de tobillo lo permite sin perder la lordosis lumbar.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">04 · Concéntrica</span>
+              <p>Empuja el suelo con intención. Pecho alto, rodillas sobre la línea de los pies, exhala al completar la extensión. Piensa “acelerar el suelo hacia abajo”.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="warn">
+            <h4>Errores comunes</h4>
+            <ul>
+              <li><strong>Valgo dinámico:</strong> la rodilla se hunde hacia dentro y aumenta estrés en tendón rotuliano y ligamentos.</li>
+              <li><strong>Butt wink:</strong> la pelvis se mete en profundidad por falta de dorsiflexión o control de cadera.</li>
+              <li><strong>Talones que se levantan:</strong> acorta la base de apoyo y sobrecarga la articulación patelofemoral.</li>
+            </ul>
+          </div>
+          <div class="benefit">
+            <h4>Beneficio para el corredor</h4>
+            <p>
+              Mejora la economía de carrera, retrasa la fatiga neuromuscular al final de distancias largas
+              y ayuda a prevenir tendinopatía rotuliana y síndrome de dolor patelofemoral
+              (<strong>runner’s knee</strong>).
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- 02 RDL -->
+      <article id="rdl" class="panel exercise" data-exercise="rdl">
+        <div class="exercise__head">
+          <div>
+            <div class="exercise__badge">02 · Cadena posterior unipodal</div>
+            <h2 class="exercise__title">Single-Leg RDL <em>(Peso muerto rumano)</em></h2>
+            <p class="exercise__intro">
+              Fortalece isquiotibiales y glúteos en un patrón de una sola pierna que replica la
+              biomecánica del ciclo de zancada: bisagra de cadera + control anti-rotacional.
+            </p>
+          </div>
+          <div class="dose" data-dose="rdl">
+            <span class="dose__label">Dosificación recomendada</span>
+            <span class="dose__value">3 × 8–10 /pierna</span>
+            <span class="dose__meta">RPE 7 · Descanso 90 s</span>
+          </div>
+        </div>
+
+        <figure class="sketch">
+          <img src="images/rdl.png" alt="Boceto: single-leg Romanian deadlift" width="1280" height="720" loading="lazy" />
+          <figcaption class="sketch__caption">Boceto · Bisagra en T</figcaption>
+        </figure>
+
+        <div class="grid-2">
+          <div class="block">
+            <h3 class="block__title"><span class="block__icon">⚡</span> Propósito y enfoque</h3>
+            <p>
+              Correr es una sucesión de apoyos unipodales. El Single-Leg RDL entrena la
+              <strong>bisagra de cadera en una pierna</strong> mientras glúteo medio y tobillo evitan
+              la rotación pélvica y el colapso del arco plantar.
+            </p>
+            <ul class="check-list">
+              <li><span><strong>Sincronización posterior:</strong> trabaja isquiotibiales en longitud funcional, similar a la fase previa al apoyo.</span></li>
+              <li><span><strong>Control anti-rotacional:</strong> el core profundo resiste la torsión transversal de la pelvis.</span></li>
+              <li><span><strong>Simetría:</strong> detecta y corrige desequilibrios izquierda–derecha que la sentadilla bilateral puede ocultar.</span></li>
+            </ul>
+          </div>
+          <div class="block">
+            <h3 class="block__title"><span class="block__icon">◎</span> Enfoque muscular</h3>
+            <span class="section-label">Agonistas</span>
+            <div class="tag-row">
+              <span class="tag">Isquiotibiales</span>
+              <span class="tag">Glúteo mayor</span>
+            </div>
+            <span class="section-label" style="margin-top:14px">Estabilizadores clave</span>
+            <div class="tag-row">
+              <span class="tag tag--muted">Glúteo medio y menor</span>
+              <span class="tag tag--muted">Tibial posterior y peroneos</span>
+              <span class="tag tag--muted">Multífidos y cuadrado lumbar</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="block" style="margin-top:14px">
+          <h3 class="block__title"><span class="block__icon">→</span> Cómo ejecutarlo</h3>
+          <div class="steps">
+            <div class="step">
+              <span class="step__n">01 · Posición</span>
+              <p>Apóyate en una pierna con microflexión de rodilla (10–15°). La pierna libre queda larga detrás; el peso del cuerpo sobre el trípode del pie de apoyo.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">02 · Bisagra</span>
+              <p>Empuja la cadera hacia atrás. Torso y pierna libre bajan como una palanca rígida en “T”. La espalda se mantiene neutra, no redondeada.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">03 · Pelvis nivelada</span>
+              <p>Las crestas ilíacas miran al suelo. Evita que la cadera libre se “abra” hacia el techo — ese es el error más frecuente.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">04 · Extensión</span>
+              <p>Empuja el talón de apoyo contra el suelo y cierra con el glúteo hasta la vertical. Intenta no apoyar el pie libre entre reps si el equilibrio lo permite.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="warn">
+            <h4>Errores comunes</h4>
+            <ul>
+              <li>Flexionar la columna en vez de bisagrar desde la cadera.</li>
+              <li>Perder el trípode plantar o dejar caer el arco interno del pie.</li>
+              <li>Rotar en exceso la cadera de la pierna elevada.</li>
+            </ul>
+          </div>
+          <div class="benefit">
+            <h4>Beneficio para el corredor</h4>
+            <p>
+              Reduce el riesgo de <strong>distensiones de isquiotibiales</strong> en sprints y
+              mejora la estabilidad pélvica, limitando el balanceo ineficiente tipo Trendelenburg.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- 03 COMBO -->
+      <article id="combo" class="panel exercise" data-exercise="combo">
+        <div class="exercise__head">
+          <div>
+            <div class="exercise__badge">03 · Dúo unipodal de potencia</div>
+            <h2 class="exercise__title">Búlgara <em>+</em> Step-Up</h2>
+            <p class="exercise__intro">
+              Combo obligatorio: la búlgara construye fuerza de desaceleración en rango profundo;
+              el step-up con ataque de rodilla transfiere esa fuerza a propulsión y cuestas.
+            </p>
+          </div>
+          <div class="dose" data-dose="combo">
+            <span class="dose__label">Dosificación recomendada</span>
+            <span class="dose__value">3 × 8 + 8 /pierna</span>
+            <span class="dose__meta">Biserie · Descanso 2 min</span>
+          </div>
+        </div>
+
+        <div class="subcard">
+          <div class="subcard__head">
+            <div class="subcard__title">
+              <span class="subcard__code">3A</span>
+              Sentadilla búlgara
+            </div>
+            <span class="pill">Fuerza unipodal profunda</span>
+          </div>
+          <figure class="sketch sketch--compact">
+            <img src="images/bulgarian.png" alt="Boceto: sentadilla búlgara" width="1280" height="720" loading="lazy" />
+            <figcaption class="sketch__caption">Boceto · Pie trasero elevado</figcaption>
+          </figure>
+          <p style="color:var(--text-secondary);font-size:0.9rem">
+            Sobrecarga cuádriceps y glúteos en rango profundo mientras estira de forma dinámica
+            los flexores de la pierna trasera — útil si pasas muchas horas sentado y el psoas
+            tiende a acortarse.
+          </p>
+          <p class="muscles"><strong>Músculos clave:</strong> cuádriceps, glúteo mayor, glúteo medio, aductor mayor.</p>
+          <ol>
+            <li>Empeine trasero sobre un banco a altura de rodilla.</li>
+            <li>Pie delantero a 60–80 cm del banco; torso erguido.</li>
+            <li>Desciende en vertical hasta que la rodilla trasera casi toque el suelo.</li>
+            <li>Rodilla delantera alineada con el 2º dedo; empuja el suelo para volver sin rebotar.</li>
+          </ol>
+        </div>
+
+        <div class="subcard">
+          <div class="subcard__head">
+            <div class="subcard__title">
+              <span class="subcard__code">3B</span>
+              Step-up explosivo con knee drive
+            </div>
+            <span class="pill">Propulsión y ataque de zancada</span>
+          </div>
+          <figure class="sketch sketch--compact">
+            <img src="images/stepup.png" alt="Boceto: step-up con ataque de rodilla" width="1280" height="720" loading="lazy" />
+            <figcaption class="sketch__caption">Boceto · Knee drive</figcaption>
+          </figure>
+          <p style="color:var(--text-secondary);font-size:0.9rem">
+            Replica el impulso en pendiente y el <strong>knee drive</strong>: extensión rápida de
+            la pierna de apoyo mientras la contralateral sube a 90°.
+          </p>
+          <p class="muscles"><strong>Músculos clave:</strong> glúteo mayor, psoas/ilíaco contralateral, sóleo.</p>
+          <ol>
+            <li>Pie completo sobre un cajón (~90° de flexión de rodilla).</li>
+            <li>Empuja solo con la pierna de arriba — sin impulsarte de puntillas desde el suelo.</li>
+            <li>Arriba: triple extensión + rodilla libre hacia el pecho a 90°.</li>
+            <li>Baja en 3 segundos con control excéntrico estricto.</li>
+          </ol>
+        </div>
+
+        <div class="split">
+          <div class="warn">
+            <h4>Errores del combo</h4>
+            <ul>
+              <li><strong>Búlgara:</strong> inclinarte en exceso o levantar el talón delantero.</li>
+              <li><strong>Step-up:</strong> “impulsarte” con el pie inferior; la carga debe vivir en la pierna de arriba.</li>
+            </ul>
+          </div>
+          <div class="benefit">
+            <h4>Beneficio para el corredor</h4>
+            <p>
+              Ayuda a prevenir el <strong>síndrome de la cintilla iliotibial (ITBS)</strong> y la
+              condromalacia rotuliana, y aporta potencia específica para desniveles y tramos de montaña.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- 04 COPENHAGEN -->
+      <article id="copenhagen" class="panel exercise" data-exercise="copenhagen">
+        <div class="exercise__head">
+          <div>
+            <div class="exercise__badge">04 · Estabilidad aductora</div>
+            <h2 class="exercise__title">Plancha Copenhagen <em>(Adductor plank)</em></h2>
+            <p class="exercise__intro">
+              El estándar para salud de aductores, estabilidad pélvica lateral y transferencia
+              de fuerza en el plano frontal — donde muchos corredores están desprotegidos.
+            </p>
+          </div>
+          <div class="dose" data-dose="copenhagen">
+            <span class="dose__label">Dosificación recomendada</span>
+            <span class="dose__value">3 × 20–30 s /lado</span>
+            <span class="dose__meta">Isométrico · Descanso 60 s</span>
+          </div>
+        </div>
+
+        <figure class="sketch">
+          <img src="images/copenhagen.png" alt="Boceto: plancha Copenhagen" width="1280" height="720" loading="lazy" />
+          <figcaption class="sketch__caption">Boceto · Plancha lateral aductora</figcaption>
+        </figure>
+
+        <div class="grid-2">
+          <div class="block">
+            <h3 class="block__title"><span class="block__icon">⚡</span> Propósito y enfoque</h3>
+            <p>
+              El aductor mayor actúa como extensor y estabilizador pélvico en el apoyo. La Copenhagen
+              genera una co-contracción potente entre ingle y core lateral, reforzando el anillo pélvico
+              frente a impactos repetitivos.
+            </p>
+            <ul class="check-list">
+              <li><span><strong>Balance aductor/abductor:</strong> restaura la relación de fuerza entre glúteo medio e ingle.</span></li>
+              <li><span><strong>Estabilidad del anillo pélvico:</strong> reduce cizallamiento sobre la sínfisis púbica.</span></li>
+            </ul>
+          </div>
+          <div class="block">
+            <h3 class="block__title"><span class="block__icon">◎</span> Enfoque muscular</h3>
+            <span class="section-label">Objetivos</span>
+            <div class="tag-row">
+              <span class="tag">Aductor mayor, largo y corto</span>
+              <span class="tag">Grácil y pectíneo</span>
+            </div>
+            <span class="section-label" style="margin-top:14px">Core lateral</span>
+            <div class="tag-row">
+              <span class="tag tag--muted">Oblicuos</span>
+              <span class="tag tag--muted">Cuadrado lumbar</span>
+              <span class="tag tag--muted">Glúteo medio contralateral</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="block" style="margin-top:14px">
+          <h3 class="block__title"><span class="block__icon">→</span> Cómo ejecutarlo</h3>
+          <div class="steps">
+            <div class="step">
+              <span class="step__n">01 · Lateral</span>
+              <p>Acuéstate de lado con el antebrazo a 90° respecto al hombro. Cuerpo alineado de cabeza a pies.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">02 · Apoyo</span>
+              <p>Apoya la cara interna de la rodilla (principiante) o del tobillo (avanzado) de la pierna superior sobre un banco.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">03 · Elevación</span>
+              <p>Sube la cadera hasta formar una línea recta. No dejes que la pelvis caiga ni que el pecho rote hacia el suelo.</p>
+            </div>
+            <div class="step">
+              <span class="step__n">04 · Aducción</span>
+              <p>Mantén la pierna inferior elevada bajo el banco sin tocar el piso. Respira de forma fluida; no aguantes la respiración.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="warn">
+            <h4>Errores comunes</h4>
+            <ul>
+              <li>Dejar caer la cadera por fatiga del oblicuo o aductor.</li>
+              <li>Rotar el pecho hacia el suelo y perder la alineación lateral.</li>
+              <li>Pasar a palanca de tobillo antes de dominar la versión de rodilla.</li>
+            </ul>
+          </div>
+          <div class="benefit">
+            <h4>Beneficio para el corredor</h4>
+            <p>
+              Reduce la incidencia de <strong>pubalgia</strong> y sobrecargas de ingle, y mantiene
+              la cadera estable en terrenos irregulares o cambios de dirección.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- 05 ANKLE -->
+      <article id="ankle" class="panel exercise" data-exercise="ankle">
+        <div class="exercise__head">
+          <div>
+            <div class="exercise__badge">05 · Complejo antero-posterior de tobillo</div>
+            <h2 class="exercise__title">Tobillo <em>&</em> pantorrilla</h2>
+            <p class="exercise__intro">
+              Trabajo focal del <strong>sóleo</strong> (fuerza profunda de propulsión) y del
+              <strong>tibial anterior</strong> (freno del pie en el heel strike) para tolerar impacto
+              de forma inteligente.
+            </p>
+          </div>
+          <div class="dose" data-dose="ankle">
+            <span class="dose__label">Dosificación recomendada</span>
+            <span class="dose__value">3–4 × 12–15</span>
+            <span class="dose__meta">Excéntrica 3 s · Descanso 60 s</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="subcard" style="margin-top:0">
+            <div class="subcard__head">
+              <div class="subcard__title">
+                <span class="subcard__code">5A</span>
+                Elevación de talón sentado
+              </div>
+              <span class="pill">Sóleo</span>
+            </div>
+            <figure class="sketch sketch--compact">
+              <img src="images/soleus.png" alt="Boceto: elevación de talón sentado para sóleo" width="1280" height="720" loading="lazy" />
+              <figcaption class="sketch__caption">Boceto · Sóleo sentado</figcaption>
+            </figure>
+            <p style="color:var(--text-secondary);font-size:0.88rem">
+              El sóleo puede soportar <strong>6–8× el peso corporal</strong> al correr. Con la rodilla
+              a 90°, el gastrocnemio se acorta y el sóleo asume casi toda la carga de plantarflexión.
+            </p>
+            <ol>
+              <li>Siéntate con rodillas a 90° y metatarsos sobre un bloque elevado.</li>
+              <li>Carga (mancuerna/barra) sobre los muslos, cerca de las rodillas.</li>
+              <li>Baja el talón al máximo con estiramiento controlado (3 s).</li>
+              <li>Empuja por el metatarso hasta el tope y pausa 1 s arriba.</li>
+            </ol>
+          </div>
+
+          <div class="subcard" style="margin-top:0">
+            <div class="subcard__head">
+              <div class="subcard__title">
+                <span class="subcard__code">5B</span>
+                Eleva-puntas con pesa rusa
+              </div>
+              <span class="pill">Tibial anterior</span>
+            </div>
+            <figure class="sketch sketch--compact">
+              <img src="images/tibialis.png" alt="Boceto: elevación de puntas con pesa rusa para tibial anterior" width="1280" height="720" loading="lazy" />
+              <figcaption class="sketch__caption">Boceto · Tibial anterior</figcaption>
+            </figure>
+            <p style="color:var(--text-secondary);font-size:0.88rem">
+              El tibial anterior frena la caída del pie en el contacto inicial y modula
+              pronación/supinación. Si está débil, el impacto viaja directo a la tibia.
+            </p>
+            <ol>
+              <li>Siéntate en un banco alto con las piernas colgando.</li>
+              <li>Engancha una pesa rusa ligera (4–8 kg) o banda en el empeine.</li>
+              <li>Dorsiflexiona llevando la punta hacia la espinilla.</li>
+              <li>Pausa arriba y baja en 3 s con control estricto.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="warn">
+            <h4>Errores comunes</h4>
+            <ul>
+              <li>Rebotar abajo en el sóleo y perder tensión muscular útil.</li>
+              <li>Rotar el tobillo en vez de moverlo en el plano sagital puro.</li>
+            </ul>
+          </div>
+          <div class="benefit">
+            <h4>Prevención específica</h4>
+            <p style="margin-bottom:10px">Este bloque es especialmente útil contra:</p>
+            <div class="tag-row">
+              <span class="tag">Periostitis tibial (MTSS)</span>
+              <span class="tag">Tendinopatía de Aquiles</span>
+              <span class="tag">Fascitis plantar</span>
+              <span class="tag">Fracturas por estrés</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- TOOLS -->
+      <section id="tools" class="tools">
+        <div class="panel timer">
+          <div class="timer__row">
+            <span class="timer__label">Descanso</span>
+            <div class="timer__display" id="timer-display">01:30</div>
+          </div>
+          <div class="timer__presets">
+            <button class="chip-btn" type="button" data-seconds="60">60 s</button>
+            <button class="chip-btn is-active" type="button" data-seconds="90">90 s</button>
+            <button class="chip-btn" type="button" data-seconds="120">120 s</button>
+          </div>
+          <div class="timer__actions">
+            <button class="btn btn--primary" id="timer-toggle" type="button">Iniciar</button>
+            <button class="btn btn--reset" id="timer-reset" type="button" aria-label="Reiniciar">↺</button>
+          </div>
+        </div>
+
+        <div class="panel tracker">
+          <div class="tracker__head">
+            <div>
+              <h3>Registro de sesión</h3>
+              <p>Marca cada bloque cuando lo completes.</p>
+            </div>
+            <button class="linkish" id="tracker-reset" type="button">Limpiar</button>
+          </div>
+          <div class="tracker__grid" id="tracker-grid">
+            <label class="check"><input type="checkbox" data-track="squat" /><span>01 · Back Squat</span></label>
+            <label class="check"><input type="checkbox" data-track="rdl" /><span>02 · Single-Leg RDL</span></label>
+            <label class="check"><input type="checkbox" data-track="combo" /><span>03 · Búlgara + Step-Up</span></label>
+            <label class="check"><input type="checkbox" data-track="copenhagen" /><span>04 · Copenhagen</span></label>
+            <label class="check"><input type="checkbox" data-track="ankle" /><span>05 · Tobillo / Sóleo</span></label>
+          </div>
+          <div class="progress">
+            <div class="progress__top">
+              <span>Progreso</span>
+              <strong id="tracker-percent">0%</strong>
+            </div>
+            <div class="progress__bar">
+              <div class="progress__fill" id="tracker-bar"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p><strong>ARMATUS</strong> · Protocolo de fuerza para corredores · <span class="footer__ft">ft. Silvia Adriana Gonzalez</span></p>
+    </footer>
   </div>
 
-  <script src="data.js"></script>
-  <script src="images.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
